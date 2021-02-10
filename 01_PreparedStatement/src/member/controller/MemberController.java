@@ -26,6 +26,20 @@ public class MemberController {
 	public Member selectOne(String memberId) {
 		return memberDao.selectOne(memberId);
 	}
+
+
+	public List<Member> searchMemberName(String memberName) {
+		return memberDao.searchMemberName(memberName);
+	}
+
+	public int deleteMember(String memberId) {
+		return memberDao.deleteMember(memberId);
+	}
+
+	public int updateMember(Member member) {
+		return memberDao.updateMember(member);
+		
+	}
 }
 
 
