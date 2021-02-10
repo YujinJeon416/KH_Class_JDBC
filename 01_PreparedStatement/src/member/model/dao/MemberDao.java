@@ -219,5 +219,138 @@ public class MemberDao {
 		}
 		return member;
 	}
+	
+	public List<Member> searchMemberName(String memberName) {
+		Connection conn = null;
+		PreparedStatement pstmt = null;
+		String sql = "select * from member where member_name = '" + memberName +"'";
+		ResultSet rset = null;
+		List<Member> list = new ArrayList<>();
+		
+		try {
+			// 2. db connection객체 생성 : dbserver url, user, password
+			conn = DriverManager.getConnection(url, user, password);
+			// 3. 쿼리문 생성 및 Statement객체(PreparedStatement) 생성
+			pstmt = conn.prepareStatement(sql);
+			//DQL select문인 경우에는 executeQuery()호출 -> ResultSet
+			rset = pstmt.executeQuery();
+			
+			// 4.1 select문인 경우 결과집합을 자바객체(list)에 옮겨담기
+			while(rset.next()) {
+				Member member = new Member();
+				member.setMemberId(rset.getString("member_id"));
+				member.setPassword(rset.getString("password"));
+				member.setMemberName(rset.getString("member_name"));
+				member.setGender(rset.getString("gender"));
+				member.setAge(rset.getInt("age"));
+				member.setEmail(rset.getString("email"));
+				member.setPhone(rset.getString("phone"));
+				member.setAddress(rset.getString("address"));
+				member.setHobby(rset.getString("hobby"));
+				member.setEnrollDate(rset.getDate("enroll_date"));
+				
+				list.add(member);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}finally {
+			try {
+				//* 6. 자원 반납
+				rset.close();
+				pstmt.close();
+				conn.close();
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+		return list;
+
+	}
+	public int updateMember(Member member) {
+		Connection conn = null;
+		PreparedStatement pstmt = null;
+		String sql = "update member set "
+				   + "password = ?, "
+				   + "member_name = ?, "
+				   + "gender = ?, "
+				   + "age = ?, "
+				   + "email = ?, "
+				   + "phone = ?, "
+				   + "address = ?, "
+				   + "hobby = ? "
+				   + "where member_id = ?";
+		int result = 0;
+		
+		try {
+			//2. db connection객체 생성 : dbserver url, user, password
+			conn = DriverManager.getConnection(url, user, password);
+			//자동커밋 사용안함
+			conn.setAutoCommit(false);
+			
+			//3. 쿼리문 생성 및 Statement객체(PreparedStatement) 생성
+			pstmt = conn.prepareStatement(sql);
+			
+			pstmt.setString(1, member.getPassword());
+			pstmt.setString(2, member.getMemberName());
+			pstmt.setString(3, member.getGender());
+			pstmt.setInt(4, member.getAge());
+			pstmt.setString(5, member.getEmail());
+			pstmt.setString(6, member.getPhone());
+			pstmt.setString(7, member.getAddress());
+			pstmt.setString(8, member.getHobby());
+			pstmt.setString(9, member.getMemberId());
+			//4. 쿼리전송(실행) - 결과값
+			result = pstmt.executeUpdate();
+			
+			//5. 트랜잭션처리(commit, rollback)
+			if(result > 0) conn.commit();
+			else conn.rollback();
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			//6. 자원반납
+			try {
+				pstmt.close();
+				conn.close();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		
+		return result;
+	}
+	
+	
+	public int deleteMember(String memberId) {
+		Connection conn = null;
+		PreparedStatement pstmt = null;
+		String sql = "delete from member where member_id = '" + memberId + "'";
+		int result = 0;
+		
+		try {
+			//2. DB connection객체 생성 : dbserver url, user, password
+			conn = DriverManager.getConnection(url,user,password);
+			//3. 쿼리문 생성 및 Statement객체(PreparedStatement) 생성
+			pstmt = conn.prepareStatement(sql);
+			//4. 쿼리전송(실행) - 결과값 
+			result = pstmt.executeUpdate();
+			
+			if(result > 0) conn.commit();
+	         else conn.rollback();
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}finally {
+			try {
+				pstmt.close();
+				conn.close();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		
+		return result;
+	}
 
 }
