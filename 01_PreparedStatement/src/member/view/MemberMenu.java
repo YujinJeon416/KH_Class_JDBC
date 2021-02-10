@@ -32,6 +32,7 @@ public class MemberMenu {
 			List<Member> list = null;
 			String memberId = null;
 					
+			String memberName;
 			switch(choice) {
 				case 1: 
 					list = memberController.selectAll();
@@ -42,7 +43,14 @@ public class MemberMenu {
 					member = memberController.selectOne(memberId);
 					displayMember(member);
 					break;
-				case 3: break;
+				case 3: //회원 이름 검색
+					//사용자 입력값
+					sc.nextLine();
+					System.out.print("이름을 입력해주세요 : ");
+					memberName = sc.nextLine();
+					//controller요청
+					list = memberController.searchMemberName(memberName);
+					displayMemberList(list);break;
 				case 4: 
 					//1.신규회원정보 입력 -> Member객체
 					member = inputMember();
@@ -53,8 +61,19 @@ public class MemberMenu {
 					msg = result > 0 ? "회원 가입 성공!" : "회원 가입 실패!";
 					displayMsg(msg);
 					break;
-				case 5: break;
-				case 6: break;
+				case 5: //1.사용자 입력값 -> member객체 생성
+					member = updateMember();
+					//2.controller
+					result = memberController.updateMember(member);
+					displayMsg(result == 1 ? "회원정보 수정 성공!" : "회원정보 수정 실패!");
+					break;
+				case 6: //1.사용자 입력값 -> member객체 생성
+					sc.nextLine();
+					System.out.print("Id를 입력해주세요 : ");
+					memberId = sc.nextLine();
+					//2.controller에 delete요청
+					result = memberController.deleteMember(memberId);
+					displayMsg(result == 1 ? "회원탈퇴 성공!" : "회원탈퇴 실패!");break;
 				case 0: 
 					System.out.print("정말로 끝내시겠습니까?(y/n) : ");
 					if(sc.next().charAt(0) == 'y')
@@ -65,6 +84,45 @@ public class MemberMenu {
 			}	
 		}
 	}
+
+
+
+
+
+
+
+	private Member updateMember() {
+		System.out.println("변경할 회원정보를 입력하세요.");
+		System.out.println("-------------------------------");
+		System.out.print("아이디 : ");
+		String memberId = sc.next();
+		System.out.print("비밀번호 : ");
+		String password = sc.next();
+		System.out.print("이름 : ");
+		String memberName = sc.next();
+		System.out.print("나이 : ");
+		int age = sc.nextInt();
+		System.out.print("성별(M/F) : ");
+		String gender = sc.next().toUpperCase(); //소문자로 입력해도 대문자로 바꾸어 줌
+		System.out.print("이메일 : ");
+		String email = sc.next();
+		System.out.print("전화번호(-빼고 입력) : ");
+		String phone = sc.next();
+		sc.nextLine(); //개행문자 날리기용
+//      next 다음에 nextLine을 쓰면 사이에 개행문자 날리기용 nextLine이 필요
+		System.out.print("주소 : ");
+		String address = sc.nextLine();
+		System.out.print("취미(,으로 나열) : ");
+		String hobby = sc.nextLine();
+		return new Member(memberId, password, memberName, gender, 
+						  age, email, phone, address, hobby, null);
+	}
+
+
+
+
+
+
 
 	/**
 	 * DB에서 조회한 1명의 회원 출력
